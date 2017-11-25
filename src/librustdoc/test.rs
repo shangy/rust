@@ -18,6 +18,7 @@ use std::panic::{self, AssertUnwindSafe};
 use std::process::Command;
 use std::rc::Rc;
 use std::str;
+use rustc_data_structures::sync::Lrc;
 use std::sync::{Arc, Mutex};
 
 use testing;
@@ -79,7 +80,7 @@ pub fn run(input: &str,
         ..config::basic_options().clone()
     };
 
-    let codemap = Rc::new(CodeMap::new(sessopts.file_path_mapping()));
+    let codemap = Lrc::new(CodeMap::new(sessopts.file_path_mapping()));
     let handler =
         errors::Handler::with_tty_emitter(ColorConfig::Auto,
                                           true, false,
@@ -238,7 +239,7 @@ fn run_test(test: &str, cratename: &str, filename: &str, cfgs: Vec<String>, libs
         }
     }
     let data = Arc::new(Mutex::new(Vec::new()));
-    let codemap = Rc::new(CodeMap::new(sessopts.file_path_mapping()));
+    let codemap = Lrc::new(CodeMap::new(sessopts.file_path_mapping()));
     let emitter = errors::emitter::EmitterWriter::new(box Sink(data.clone()),
                                                       Some(codemap.clone()),
                                                       false);
@@ -453,7 +454,7 @@ pub struct Collector {
     opts: TestOptions,
     maybe_sysroot: Option<PathBuf>,
     position: Span,
-    codemap: Option<Rc<CodeMap>>,
+    codemap: Option<Lrc<CodeMap>>,
     filename: Option<String>,
     // to be removed when hoedown will be removed as well
     pub render_type: RenderType,
@@ -463,7 +464,7 @@ pub struct Collector {
 impl Collector {
     pub fn new(cratename: String, cfgs: Vec<String>, libs: SearchPaths, externs: Externs,
                use_headers: bool, opts: TestOptions, maybe_sysroot: Option<PathBuf>,
-               codemap: Option<Rc<CodeMap>>, filename: Option<String>,
+               codemap: Option<Lrc<CodeMap>>, filename: Option<String>,
                render_type: RenderType, linker: Option<String>) -> Collector {
         Collector {
             tests: Vec::new(),
